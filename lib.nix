@@ -52,11 +52,10 @@ let
         ++
           # Add the current system if the --impure flag is used.
           (
-            if builtins ? currentSystem then
-              if builtins.elem builtins.currentSystem systems then
-                [ ]
-              else
-                [ builtins.currentSystem ]
+            if
+              builtins ? currentSystem && !builtins.elem builtins.currentSystem systems
+            then
+              [ builtins.currentSystem ]
             else
               [ ]
           )
