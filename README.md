@@ -22,7 +22,7 @@ system = {
 ```
 It's mainly useful to
 detect typos and auto-complete if you use [rnix-lsp](https://github.com/nix-community/rnix-lsp).
-   
+
 Eg: instead of typing `"x86_64-linux"`, use `system.x86_64-linux`.
 
 
