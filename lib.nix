@@ -29,37 +29,38 @@ let
   # Builds a map from <attr>=value to <attr>.<system>=value for each system.
   eachSystem =
     systems: f:
-    let
-      # Merge outputs for each system.
-      op =
+    builtins.foldl'
+      (
+        # Merge outputs for each system.
         attrs: system:
         let
           ret = f system;
-          op =
-            attrs: key:
-            attrs
-            // {
-              ${key} = (attrs.${key} or { }) // {
-                ${system} = ret.${key};
-              };
-            };
         in
-        builtins.foldl' op attrs (builtins.attrNames ret);
-    in
-    builtins.foldl' op { } (
-      systems
-      ++
-        # Add the current system if the --impure flag is used.
-        (
-          if builtins ? currentSystem then
-            if builtins.elem builtins.currentSystem systems then
-              [ ]
+        builtins.foldl' (
+          attrs: key:
+          attrs
+          // {
+            ${key} = (attrs.${key} or { }) // {
+              ${system} = ret.${key};
+            };
+          }
+        ) attrs (builtins.attrNames ret)
+      )
+      { }
+      (
+        systems
+        ++
+          # Add the current system if the --impure flag is used.
+          (
+            if builtins ? currentSystem then
+              if builtins.elem builtins.currentSystem systems then
+                [ ]
+              else
+                [ builtins.currentSystem ]
             else
-              [ builtins.currentSystem ]
-          else
-            [ ]
-        )
-    );
+              [ ]
+          )
+      );
 
   # eachSystemMap using defaultSystems
   eachDefaultSystemMap = eachSystemMap defaultSystems;
