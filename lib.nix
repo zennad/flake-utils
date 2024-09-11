@@ -198,8 +198,8 @@ let
       check-utils
       defaultSystems
       eachDefaultSystem
-      eachSystem
       eachDefaultSystemMap
+      eachSystem
       eachSystemMap
       filterPackages
       flattenTree
