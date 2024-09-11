@@ -26,12 +26,11 @@ let
   # eachSystem using defaultSystems
   eachDefaultSystem = eachSystem defaultSystems;
 
-  # Builds a map from <attr>=value to <attr>.<system>=value for each system
-  #
+  # Builds a map from <attr>=value to <attr>.<system>=value for each system.
   eachSystem =
     systems: f:
     let
-      # Merge together the outputs for all systems.
+      # Merge outputs for each system.
       op =
         attrs: system:
         let
@@ -50,7 +49,7 @@ let
     builtins.foldl' op { } (
       systems
       ++
-        # add the current system if --impure is used
+        # Add the current system if the --impure flag is used.
         (
           if builtins ? currentSystem then
             if builtins.elem builtins.currentSystem systems then
