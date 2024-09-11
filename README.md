@@ -83,6 +83,11 @@ eachSystem allSystems (system: { hello = 42; })
 }
 ```
 
+### `eachSystemPassThrough :: [<system>] -> (<system> -> attrs)`
+
+Unlike `eachSystem`, this function does not inject the `${system}` key by merely
+providing the system argument to the function.
+
 ### `eachDefaultSystem :: (<system> -> attrs)`
 
 `eachSystem` pre-populated with `defaultSystems`.
@@ -111,6 +116,24 @@ eachSystem allSystems (system: { hello = 42; })
       }
     );
 }
+```
+
+### `eachDefaultSystemPassThrough :: (<system> -> attrs)`
+
+`eachSystemPassThrough` pre-populated with `defaultSystems`.
+
+#### Example
+
+```nix
+inputs.flake-utils.lib.eachDefaultSystem (system: {
+  checks./*<SYSTEM>.*/"<CHECK>" = /* ... */;
+  devShells./*<SYSTEM>.*/"<DEV_SHELL>" = /* ... */;
+  packages./*<SYSTEM>.*/"<PACKAGE>" = /* ... */;
+})
+// inputs.flake-utils.lib.eachDefaultSystemPassThrough (system: {
+  homeConfigurations."<HOME_CONFIGURATION>" = /* ... */;
+  nixosConfigurations."<NIXOS_CONFIGURATION>" = /* ... */;
+})
 ```
 
 ### `meld :: attrs -> [ path ] -> attrs`
