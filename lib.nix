@@ -48,17 +48,13 @@ let
       )
       { }
       (
-        systems
-        ++
+        if
+          !builtins ? currentSystem || builtins.elem builtins.currentSystem systems
+        then
+          systems
+        else
           # Add the current system if the --impure flag is used.
-          (
-            if
-              builtins ? currentSystem && !builtins.elem builtins.currentSystem systems
-            then
-              [ builtins.currentSystem ]
-            else
-              [ ]
-          )
+          systems ++ [ builtins.currentSystem ]
       );
 
   # eachSystemMap using defaultSystems
