@@ -26,33 +26,47 @@ let
   # eachSystem using defaultSystems
   eachDefaultSystem = eachSystem defaultSystems;
 
-  # Builds a map from <attr>=value to <attr>.<system>=value for each system
-  #
-  eachSystem = systems: f:
+  # eachSystemPassThrough using defaultSystems
+  eachDefaultSystemPassThrough = eachSystemPassThrough defaultSystems;
+
+  # Builds a map from <attr>=value to <attr>.<system>=value for each system.
+  eachSystem = eachSystemOp (
+    # Merge outputs for each system.
+    f: attrs: system:
     let
-      # Merge together the outputs for all systems.
-      op = attrs: system:
-        let
-          ret = f system;
-          op = attrs: key: attrs //
-              {
-                ${key} = (attrs.${key} or { })
-                  // { ${system} = ret.${key}; };
-              }
-          ;
-        in
-        builtins.foldl' op attrs (builtins.attrNames ret);
+      ret = f system;
     in
-    builtins.foldl' op { }
-      (systems
-       ++ # add the current system if --impure is used
-          (if builtins?currentSystem then
-             if builtins.elem builtins.currentSystem systems
-             then []
-             else [ builtins.currentSystem ]
-           else
-             []))
-  ;
+    builtins.foldl' (
+      attrs: key:
+      attrs
+      // {
+        ${key} = (attrs.${key} or { }) // {
+          ${system} = ret.${key};
+        };
+      }
+    ) attrs (builtins.attrNames ret)
+  );
+
+  # Applies a merge operation accross systems.
+  eachSystemOp =
+    op: systems: f:
+    builtins.foldl' (op f) { } (
+      if
+        !builtins ? currentSystem || builtins.elem builtins.currentSystem systems
+      then
+        systems
+      else
+        # Add the current system if the --impure flag is used.
+        systems ++ [ builtins.currentSystem ]
+    );
+
+  # Merely provides the system argument to the function.
+  #
+  # Unlike eachSystem, this function does not inject the `${system}` key.
+  eachSystemPassThrough = eachSystemOp (
+    f: attrs: system:
+    attrs // (f system)
+  );
 
   # eachSystemMap using defaultSystems
   eachDefaultSystemMap = eachSystemMap defaultSystems;
@@ -198,9 +212,11 @@ let
       check-utils
       defaultSystems
       eachDefaultSystem
-      eachSystem
       eachDefaultSystemMap
+      eachDefaultSystemPassThrough
+      eachSystem
       eachSystemMap
+      eachSystemPassThrough
       filterPackages
       flattenTree
       meld
