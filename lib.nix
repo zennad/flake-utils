@@ -40,9 +40,11 @@ let
       attrs: key:
       attrs
       // {
-        ${key} = (attrs.${key} or { }) // {
-          ${system} = ret.${key};
-        };
+        ${key} =
+          if key == "nixosModules"
+          then ret.${key}
+          else (attrs.${key} or { })
+               // { ${system} = ret.${key}; };
       }
     ) attrs (builtins.attrNames ret)
   );
