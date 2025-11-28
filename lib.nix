@@ -42,6 +42,7 @@ let
       // {
         ${key} =
           if key == "nixosModules"
+               || key == "nixosConfigurations"
           then ret.${key}
           else (attrs.${key} or { })
                // { ${system} = ret.${key}; };
